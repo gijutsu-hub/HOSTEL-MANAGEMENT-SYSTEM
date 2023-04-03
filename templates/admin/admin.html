@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Login to HRS VITB</title>
+  <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css'>
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css'><link rel="stylesheet" href="/static/assets/css/login.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HRS VITB Admin</title>
+</head>
+<body>
+  <div class="section login-page container-fluid">
+    <div class="row aligh-item-center">
+      <div class="col-sm-3 p-0">
+        <div class="login-form">
+            <div class="logo">
+                <a href="#" class="">
+                  <img src="https://www.mpnvva.in/Image/UniversityLogo?instituteID=35" alt="">
+                </a>
+              </div>
+          <div class="page-heading">
+            <h2>Admin Controller</h2>
+          </div>
+            <div class="form-signin">
+              <button class="btn" onclick="redirectTomllt()" >Manage Logins and Login time</button>
+              <br><br>
+              <button class="btn" onclick="redirectTomrrd()" >Manage Rooms and Rooms details</button>
+              <br><br>
+              <button class="btn" onclick="redirectToMuud()">Manage User and User details</button>
+              <br><br>
+              <button class="btn" onclick="redirectTolg()">Logout</button>
+            </div>
+        </div>
+      </div>
+      <div class="col-sm-9">
+        <div class="login-extra">
+          <img src="/static/images/bg.svg" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function redirectTomrrd() {
+        window.location.href = "/hrsadmin-managerooms";
+      }
+      function redirectTomllt() {
+        window.location.href = "/hrsadmin-managelogin";
+      }
+      function redirectToMuud() {
+        window.location.href = "/hrsadmin-manageuser";
+      }
+      function redirectTolg() {
+        window.location.href = "/logout-admin";
+      }
+  </script>
+
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>

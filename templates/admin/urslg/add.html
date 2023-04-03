@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Hostel MGT</title>
+  <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+<link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.min.css'>
+<link rel='stylesheet' href='//rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/css/bootstrap-editable.css'>
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div class="container">
+<h1>ADD ROOMS</h1>
+
+<p>Fill up the details to add room </p><br><br>
+<form action="" method="post">
+    <div class="form-group">
+      <label for="formGroupExampleInput">Regno </label>
+      <input type="text" class="form-control" id="formGroupExampleInput" name="regno" placeholder="Example Room id">
+    </div>
+    <div class="form-group">
+        <label for="formGroupExampleInput">Email</label>
+        <input type="text" class="form-control" id="formGroupExampleInput" name="email" placeholder="Example Room id">
+      </div>
+    <button type="submit" class="btn btn-primary">Add a room</button>
+  </form>
+<br><br>
+
+</div>
+
+<div id="popup-container">
+  <div id="popup">
+    <button id="popup-close">&times;</button>
+    <div id="popup-content"></div>
+  </div>
+</div>
+
+
+<!-- partial -->
+  <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<script src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/editable/bootstrap-table-editable.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/export/bootstrap-table-export.js'></script>
+<script src='//rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/filter-control/bootstrap-table-filter-control.js'></script><script  src="./script.js"></script>
+<script>
+    //exporte les données sélectionnées
+var $table = $('#table');
+$(function () {
+    $('#toolbar').find('select').change(function () {
+        $table.bootstrapTable('refreshOptions', {
+            exportDataType: $(this).val()
+        });
+    });
+})
+
+    var trBoldBlue = $("table");
+
+$(trBoldBlue).on("click", "tr", function (){
+        $(this).toggleClass("bold-blue");
+});
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  var table = document.getElementsByTagName("table")[0];
+  var tbody = table.getElementsByTagName("tbody")[0];
+  tbody.onclick = function (e) {
+    e = e || window.event;
+    var data = [];
+    var target = e.srcElement || e.target;
+    while (target && target.nodeName !== "TR") {
+        target = target.parentNode;
+    }
+    if (target) {
+        var cells = target.getElementsByTagName("td");  
+        openPopup(cells);    
+    }
+    
+};
+  function openPopup(cells) {
+    var popup = window.open("", "_self", "width=700,height=700");
+    popup.document.write(`<!DOCTYPE html>
+    <html lang="en" >
+    <head>
+      <meta charset="UTF-8">
+      <title>Hostel Conformation</title>
+      <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+    <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.min.css'>
+    <link rel='stylesheet' href='//rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/css/bootstrap-editable.css'>
+    </head>
+    <body>
+    <!-- partial:index.partial.html -->
+    <div class="container">
+    <h1>Hostel Registration</h1>
+    <p>Check the details and press the submit button to conform your booking</p>
+    <form action="" method="post">
+        <div class="mb-3">
+          <label for="disabledTextInput" class="form-label">Room ID</label>
+          <input type="text" id="disabledTextInput" name="roomid" value="`+ cells[0].innerHTML+`"class="form-control" >
+        </div><br>
+        <div class="mb-3">
+          <label for="disabledTextInput" class="form-label">Room Price</label>
+          <input type="text" id="disabledTextInput"  name="roomprice" value= "`+ cells[3].innerHTML+`" class="form-control" >
+        </div><br>
+        <div class="mb-3">
+          <label for="disabledTextInput" class="form-label">Room Type</label>
+          <input type="text" id="disabledTextInput"  name="roomtype" value= "`+ cells[1].innerHTML+`" class="form-control" >
+        </div><br>
+        <div class="mb-3">
+          <label for="disabledTextInput" class="form-label">Block</label>
+          <input type="text" id="disabledTextInput"  name="block" value= "`+ cells[2].innerHTML+`" class="form-control" >
+        </div>
+      <br><br>
+      <button type="submit" class="btn btn-primary">Conform Booking</button>
+    </form>
+    </body>
+    </html>
+    `);
+}
+function closePopup() {
+    window.close();
+}
+</script>
+<style>
+    .tbody{
+      cursor: pointer;
+      text-align: center;
+      background-color: #f8e1e1;
+    }
+    #popup-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 999;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+    }
+    
+    #popup {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    
+    #popup-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      line-height: 1;
+      border: none;
+      background-color: transparent;
+      cursor: pointer;
+    }
+    
+    #popup-content {
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+  </style>
+  <script>
+    window.addEventListener('DOMContentLoaded', function() {
+      // Get the popup container, content, and close button
+      const popupContainer = document.getElementById('popup-container');
+      const popupContent = document.getElementById('popup-content');
+      const popupClose = document.getElementById('popup-close');
+    
+      // Check if the URL has a "msg" parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const msgParam = urlParams.get('msg');
+      if (msgParam) {
+        // Set the popup content to the "msg" parameter value
+        popupContent.innerText = msgParam;
+        // Show the popup
+        popupContainer.style.display = 'block';
+      }
+    
+      // Add a click event listener to the close button to hide the popup
+      popupClose.addEventListener('click', function() {
+        popupContainer.style.display = 'none';
+        window.location.href="/adduser"
+      });
+    });
+  </script>
+
+</body>
+</html>

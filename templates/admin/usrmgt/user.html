@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Hostel MGT</title>
+  <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+<link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.min.css'>
+<link rel='stylesheet' href='//rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/css/bootstrap-editable.css'>
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div class="container">
+<h1>User management</h1>
+
+<p>Select the user that you want </a> to update </p>
+
+<table id="table" 
+			 data-toggle="table"
+			 data-search="true"
+			 data-filter-control="true" 
+			 data-click-to-select="true"
+			 data-toolbar="#toolbar"
+       class="table-responsive">
+	<thead>
+		<tr>
+            <th data-field="UserId" data-filter-control="input" data-sortable="true">UserId Id</th>
+			<th data-field="roomid" data-filter-control="input" data-sortable="true">Room Id</th>
+			<th data-field="roomtype" data-filter-control="select" data-sortable="true">Room Type</th>
+			<th data-field="block" data-filter-control="select" data-sortable="true">Block</th>
+            <th data-field="Price" data-filter-control="select" data-sortable="true">Price</th>
+            <th data-field="stuno" data-filter-control="select" data-sortable="true">No.of Student</th>
+            <th data-field="booking" data-filter-control="select" data-sortable="true">Date of booking</th>
+		</tr>
+	</thead>
+	<tbody>
+        {{range .}}
+		<tr>
+            <td>{{.Regno}}</td>
+			<td>{{.Roomid}}</td>
+			<td>{{.Roomtype}}</td>
+			<td>{{.Block}}</td>
+            <td>{{.Price}}</td>
+			<td>{{.Stu}}</td>
+            <td>{{.Dateofbooking}}</td>
+		</tr>
+        {{end}}
+	</tbody>
+</table>
+<br><br>
+<a href="/hrsadmin-allot-room" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Allote room</a>
+<a href="/hrsadmin-delete-alloted-room" class="btn btn-danger btn-lg active" role="button" aria-pressed="true">Delet alloted room</a>
+</div>
+
+
+<!-- partial -->
+  <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<script src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/editable/bootstrap-table-editable.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/export/bootstrap-table-export.js'></script>
+<script src='//rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/filter-control/bootstrap-table-filter-control.js'></script><script  src="./script.js"></script>
+
+
+</body>
+</html>
