@@ -715,8 +715,8 @@ func sendemail(email string, username string, link string) bool {
 }
 
 const (
-	razorpayKey    = "rzp_test_vziAqjo0FibSsu"
-	razorpaySecret = "xZKjeFgxfMMYAdofanlPCFfT"
+	razorpayKey    = "*********"
+	razorpaySecret = "**********"
 )
 
 var env = godotenv.Load()
