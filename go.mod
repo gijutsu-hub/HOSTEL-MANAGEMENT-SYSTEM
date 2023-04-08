@@ -10,6 +10,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/razorpay/razorpay-go v0.0.0-20230215135222-7e85dffcb7f0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gorm.io/driver/mysql v1.4.7 // indirect
 	gorm.io/gorm v1.24.6 // indirect

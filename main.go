@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-gomail/gomail"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
+	"github.com/razorpay/razorpay-go"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"html/template"
@@ -45,6 +47,35 @@ type Room struct {
 type Sturoomdet struct {
 	Regno  string `gorm:"not null;unique"`
 	Roomid string `gorm:"not null;unique"`
+}
+
+func order(email string, price float64, ref string) (map[string]interface{}, error) {
+	client := razorpay.NewClient(razorpayKey, razorpaySecret)
+	data := map[string]interface{}{
+		"amount":       price,
+		"currency":     "INR",
+		"reference_id": ref,
+		"description":  "Payment for hostel",
+		"notes": map[string]interface{}{
+			"email":       email,
+			"policy_name": "VITBHOPAL",
+		},
+		"notify": map[string]interface{}{
+			"email": true,
+		},
+		"reminder_enable": true,
+		"callback_url":    "http://localhost:8080/payment_validate",
+		"callback_method": "get",
+	}
+
+	link, err := client.PaymentLink.Create(data, nil)
+	if err != nil {
+		fmt.Print(err)
+		return nil, err
+	}
+
+	return link, nil
+
 }
 
 func GeneratePassword(length int) string {
@@ -251,7 +282,7 @@ table.body .article {
 
 }
 
-func sendemail(email string, username string) bool {
+func sendemail(email string, username string, link string) bool {
 
 	to := []string{email}
 	subject := "Hostel Allotment success"
@@ -259,122 +290,370 @@ func sendemail(email string, username string) bool {
 	<!doctype html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Booking Template</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>HRS VITB</title>
     <style>
-@media only screen and (max-width: 620px) {
-  table.body h1 {
-    font-size: 28px !important;
-    margin-bottom: 10px !important;
-  }
+      /* -------------------------------------
+          GLOBAL RESETS
+      ------------------------------------- */
+      
+      /*All the styling goes here*/
+      
+      img {
+        border: none;
+        -ms-interpolation-mode: bicubic;
+        max-width: 100%; 
+      }
 
-  table.body p,
-table.body ul,
-table.body ol,
-table.body td,
-table.body span,
-table.body a {
-    font-size: 16px !important;
-  }
+      body {
+        background-color: #f6f6f6;
+        font-family: sans-serif;
+        -webkit-font-smoothing: antialiased;
+        font-size: 14px;
+        line-height: 1.4;
+        margin: 0;
+        padding: 0;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%; 
+      }
 
-  table.body .wrapper,
-table.body .article {
-    padding: 10px !important;
-  }
+      table {
+        border-collapse: separate;
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+        width: 100%; }
+        table td {
+          font-family: sans-serif;
+          font-size: 14px;
+          vertical-align: top; 
+      }
 
-  table.body .content {
-    padding: 0 !important;
-  }
+      /* -------------------------------------
+          BODY & CONTAINER
+      ------------------------------------- */
 
-  table.body .container {
-    padding: 0 !important;
-    width: 100% !important;
-  }
+      .body {
+        background-color: #f6f6f6;
+        width: 100%; 
+      }
 
-  table.body .main {
-    border-left-width: 0 !important;
-    border-radius: 0 !important;
-    border-right-width: 0 !important;
-  }
+      /* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something */
+      .container {
+        display: block;
+        margin: 0 auto !important;
+        /* makes it centered */
+        max-width: 580px;
+        padding: 10px;
+        width: 580px; 
+      }
 
-  table.body .btn table {
-    width: 100% !important;
-  }
+      /* This should also be a block element, so that it will fill 100% of the .container */
+      .content {
+        box-sizing: border-box;
+        display: block;
+        margin: 0 auto;
+        max-width: 580px;
+        padding: 10px; 
+      }
 
-  table.body .btn a {
-    width: 100% !important;
-  }
+      /* -------------------------------------
+          HEADER, FOOTER, MAIN
+      ------------------------------------- */
+      .main {
+        background: #ffffff;
+        border-radius: 3px;
+        width: 100%; 
+      }
 
-  table.body .img-responsive {
-    height: auto !important;
-    max-width: 100% !important;
-    width: auto !important;
-  }
-}
-@media all {
-  .ExternalClass {
-    width: 100%;
-  }
+      .wrapper {
+        box-sizing: border-box;
+        padding: 20px; 
+      }
 
-  .ExternalClass,
-.ExternalClass p,
-.ExternalClass span,
-.ExternalClass font,
-.ExternalClass td,
-.ExternalClass div {
-    line-height: 100%;
-  }
+      .content-block {
+        padding-bottom: 10px;
+        padding-top: 10px;
+      }
 
-  .apple-link a {
-    color: inherit !important;
-    font-family: inherit !important;
-    font-size: inherit !important;
-    font-weight: inherit !important;
-    line-height: inherit !important;
-    text-decoration: none !important;
-  }
+      .footer {
+        clear: both;
+        margin-top: 10px;
+        text-align: center;
+        width: 100%; 
+      }
+        .footer td,
+        .footer p,
+        .footer span,
+        .footer a {
+          color: #999999;
+          font-size: 12px;
+          text-align: center; 
+      }
 
-  #MessageViewBody a {
-    color: inherit;
-    text-decoration: none;
-    font-size: inherit;
-    font-family: inherit;
-    font-weight: inherit;
-    line-height: inherit;
-  }
+      /* -------------------------------------
+          TYPOGRAPHY
+      ------------------------------------- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        color: #000000;
+        font-family: sans-serif;
+        font-weight: 400;
+        line-height: 1.4;
+        margin: 0;
+        margin-bottom: 30px; 
+      }
 
-  .btn-primary table td:hover {
-    background-color: #34495e !important;
-  }
+      h1 {
+        font-size: 35px;
+        font-weight: 300;
+        text-align: center;
+        text-transform: capitalize; 
+      }
 
-  .btn-primary a:hover {
-    background-color: #34495e !important;
-    border-color: #34495e !important;
-  }
-}
-</style>
+      p,
+      ul,
+      ol {
+        font-family: sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        margin: 0;
+        margin-bottom: 15px; 
+      }
+        p li,
+        ul li,
+        ol li {
+          list-style-position: inside;
+          margin-left: 5px; 
+      }
+
+      a {
+        color: #3498db;
+        text-decoration: underline; 
+      }
+
+      /* -------------------------------------
+          BUTTONS
+      ------------------------------------- */
+      .btn {
+        box-sizing: border-box;
+        width: 100%; }
+        .btn > tbody > tr > td {
+          padding-bottom: 15px; }
+        .btn table {
+          width: auto; 
+      }
+        .btn table td {
+          background-color: #ffffff;
+          border-radius: 5px;
+          text-align: center; 
+      }
+        .btn a {
+          background-color: #ffffff;
+          border: solid 1px #3498db;
+          border-radius: 5px;
+          box-sizing: border-box;
+          color: #3498db;
+          cursor: pointer;
+          display: inline-block;
+          font-size: 14px;
+          font-weight: bold;
+          margin: 0;
+          padding: 12px 25px;
+          text-decoration: none;
+          text-transform: capitalize; 
+      }
+
+      .btn-primary table td {
+        background-color: #3498db; 
+      }
+
+      .btn-primary a {
+        background-color: #3498db;
+        border-color: #3498db;
+        color: #ffffff; 
+      }
+
+      /* -------------------------------------
+          OTHER STYLES THAT MIGHT BE USEFUL
+      ------------------------------------- */
+      .last {
+        margin-bottom: 0; 
+      }
+
+      .first {
+        margin-top: 0; 
+      }
+
+      .align-center {
+        text-align: center; 
+      }
+
+      .align-right {
+        text-align: right; 
+      }
+
+      .align-left {
+        text-align: left; 
+      }
+
+      .clear {
+        clear: both; 
+      }
+
+      .mt0 {
+        margin-top: 0; 
+      }
+
+      .mb0 {
+        margin-bottom: 0; 
+      }
+
+      .preheader {
+        color: transparent;
+        display: none;
+        height: 0;
+        max-height: 0;
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        mso-hide: all;
+        visibility: hidden;
+        width: 0; 
+      }
+
+      .powered-by a {
+        text-decoration: none; 
+      }
+
+      hr {
+        border: 0;
+        border-bottom: 1px solid #f6f6f6;
+        margin: 20px 0; 
+      }
+
+      /* -------------------------------------
+          RESPONSIVE AND MOBILE FRIENDLY STYLES
+      ------------------------------------- */
+      @media only screen and (max-width: 620px) {
+        table.body h1 {
+          font-size: 28px !important;
+          margin-bottom: 10px !important; 
+        }
+        table.body p,
+        table.body ul,
+        table.body ol,
+        table.body td,
+        table.body span,
+        table.body a {
+          font-size: 16px !important; 
+        }
+        table.body .wrapper,
+        table.body .article {
+          padding: 10px !important; 
+        }
+        table.body .content {
+          padding: 0 !important; 
+        }
+        table.body .container {
+          padding: 0 !important;
+          width: 100% !important; 
+        }
+        table.body .main {
+          border-left-width: 0 !important;
+          border-radius: 0 !important;
+          border-right-width: 0 !important; 
+        }
+        table.body .btn table {
+          width: 100% !important; 
+        }
+        table.body .btn a {
+          width: 100% !important; 
+        }
+        table.body .img-responsive {
+          height: auto !important;
+          max-width: 100% !important;
+          width: auto !important; 
+        }
+      }
+
+      /* -------------------------------------
+          PRESERVE THESE STYLES IN THE HEAD
+      ------------------------------------- */
+      @media all {
+        .ExternalClass {
+          width: 100%; 
+        }
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+          line-height: 100%; 
+        }
+        .apple-link a {
+          color: inherit !important;
+          font-family: inherit !important;
+          font-size: inherit !important;
+          font-weight: inherit !important;
+          line-height: inherit !important;
+          text-decoration: none !important; 
+        }
+        #MessageViewBody a {
+          color: inherit;
+          text-decoration: none;
+          font-size: inherit;
+          font-family: inherit;
+          font-weight: inherit;
+          line-height: inherit;
+        }
+        .btn-primary table td:hover {
+          background-color: #34495e !important; 
+        }
+        .btn-primary a:hover {
+          background-color: #34495e !important;
+          border-color: #34495e !important; 
+        } 
+      }
+
+    </style>
   </head>
-  <body style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
-    <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;">Booking conformation for hostel</span>
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #f6f6f6; width: 100%;" width="100%" bgcolor="#f6f6f6">
+  <body>
+    <span class="preheader">Pay your hostel fees</span>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
       <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
-        <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; max-width: 580px; padding: 10px; width: 580px; margin: 0 auto;" width="580" valign="top">
-          <div class="content" style="box-sizing: border-box; display: block; margin: 0 auto; max-width: 580px; padding: 10px;">
+        <td>&nbsp;</td>
+        <td class="container">
+          <div class="content">
 
             <!-- START CENTERED WHITE CONTAINER -->
-            <table role="presentation" class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; background: #ffffff; border-radius: 3px; width: 100%;" width="100%">
+            <table role="presentation" class="main">
 
               <!-- START MAIN CONTENT AREA -->
               <tr>
-                <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;" valign="top">
-                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;" width="100%">
+                <td class="wrapper">
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
-                      <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
-                        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">Hi ` + username + `,</p>
-                        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">You have booked your room and your invoice will be generated on vtop make. This is just a conformation email.</p>
-                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; box-sizing: border-box; width: 100%;" width="100%">
+                      <td>
+                        <p>Hi ` + username + `</p>
+                        <p>You have booked your room and your invoice will be generated on vtop pay of hostel fee to conform your booking </p>
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
+                          <tbody>
+                            <tr>
+                              <td align="center">
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                  <tbody>
+                                    <tr>
+                                      <td> <a href="` + link + `" target="_blank">Pay Now</a> </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
                         </table>
                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">This is a system generated email, please do not reply back to it. If you are facing any issue try to contact chief warden by emailing at <a href="mailto:cw@vitbhopal.ac.in">cw@vitbhopal.ac.in</a></p><br><br>
                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">Best Wishes</p>
@@ -413,7 +692,7 @@ table.body .article {
       </tr>
     </table>
   </body>
-</html>
+</html>       
 	`
 
 	// Define mailer
@@ -434,6 +713,11 @@ table.body .article {
 	}
 
 }
+
+const (
+	razorpayKey    = "rzp_test_vziAqjo0FibSsu"
+	razorpaySecret = "xZKjeFgxfMMYAdofanlPCFfT"
+)
 
 var env = godotenv.Load()
 var dsn = os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ")/" + os.Getenv("DB_NAME") + "?charset=utf8mb4&parseTime=True&loc=Local"
@@ -519,6 +803,7 @@ func hosteldet(roomid string) {
 }
 
 func Hostelregister(w http.ResponseWriter, r *http.Request) {
+	var ref = GeneratePassword(10)
 	session, _ := store.Get(r, "login")
 	var rooms []Room
 	if err := db.Table("roomdeatils").Select("roomid, roomtype, Block, stu, Price").Scan(&rooms).Error; err != nil {
@@ -547,13 +832,20 @@ func Hostelregister(w http.ResponseWriter, r *http.Request) {
 					http.Redirect(w, r, "/hostel-registration?msg=You+Have+already+booked+the+room", http.StatusSeeOther)
 					return
 				} else {
-					hostelreg(username, roomid)
-					hosteldet(roomid)
 					var user User
 					db.Where("regno = ?", username).First(&user)
 					email := user.Email
-					sendemail(email, username)
-					http.Redirect(w, r, "/hostel-registration?msg=booking+succcess+your+invoice+will+generated+shortly", http.StatusSeeOther)
+					link, err := order(email, room.Price*100, ref)
+					session.Save(r, w)
+					if err != nil {
+						http.Redirect(w, r, "/hostel-registration?msg=Generating+issue+in+payment+try+to+re-register", http.StatusSeeOther)
+						return
+					}
+					paylink := link["short_url"].(string)
+					session.Values["roomid"] = roomid
+					session.Save(r, w)
+					sendemail(email, username, paylink)
+					http.Redirect(w, r, "/hostel-registration?msg=booking+succcess+your+invoice+has+been+generated+please+check+your+email", http.StatusSeeOther)
 					return
 				}
 			}
@@ -661,6 +953,8 @@ func UserloginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllroomHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "login")
+	var ref = GeneratePassword(10)
 	var rooms []Room
 	if err := db.Table("roomdeatils").Select("roomid, roomtype, Block, stu, Price").Scan(&rooms).Error; err != nil {
 		panic(err)
@@ -690,12 +984,19 @@ func AllroomHandler(w http.ResponseWriter, r *http.Request) {
 				http.Redirect(w, r, "/hrsadmin-allot-room?msg=You+Have+already+booked+the+room", http.StatusSeeOther)
 				return
 			} else {
-				hostelreg(username, roomid)
-				hosteldet(roomid)
 				var user User
 				db.Where("regno = ?", username).First(&user)
 				email := user.Email
-				sendemail(email, username)
+				link, err := order(email, room.Price*100, ref)
+				if err != nil {
+					http.Redirect(w, r, "/hostel-registration?msg=Generating+issue+in+payment+try+to+re-register", http.StatusSeeOther)
+					return
+				}
+				paylink := link["short_url"].(string)
+				session.Values["roomid"] = roomid
+				session.Values["username"] = user.Regno
+				session.Save(r, w)
+				sendemail(email, username, paylink)
 				http.Redirect(w, r, "/hrsadmin-allot-room?msg=booking+succcess+your+invoice+will+generated+shortly", http.StatusSeeOther)
 				return
 			}
@@ -885,6 +1186,30 @@ func ManageuserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func paymentvalid(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "login")
+	if err != nil {
+		http.Redirect(w, r, "/login?msg=unauthorize", http.StatusSeeOther)
+		return
+	}
+	username := session.Values["username"]
+	roomid := session.Values["roomid"]
+	usernamess := fmt.Sprintf("%v", username)
+	roomidss := fmt.Sprintf("%v", roomid)
+	client := razorpay.NewClient(razorpayKey, razorpaySecret)
+	paymentid := r.URL.Query().Get("razorpay_payment_id")
+	body, err := client.Payment.Fetch(paymentid, nil, nil)
+	if err != nil {
+		http.Redirect(w, r, "/hostel-registration?msg=Somethin+went+wrong", http.StatusSeeOther)
+		return
+	}
+	hosteldet(roomidss)
+	hostelreg(usernamess, roomidss)
+	log.Print(body)
+	http.Redirect(w, r, "/hostel-registration?msg=Room+booked+Successfully", http.StatusSeeOther)
+	return
+}
+
 func main() {
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
@@ -895,13 +1220,13 @@ func main() {
 	http.HandleFunc("/hostel-registration", Hostelregister)
 	http.HandleFunc("/hostel-admin", Hosteladmin)
 	http.HandleFunc("/adduser", AdduserHandler)
-	//http.HandleFunc("/delete-user", DeletuserHandler)
 	http.HandleFunc("/hrsadmin-manageuser", ManageuserHandler)
 	http.HandleFunc("/hrsadmin-managerooms", ManageroomHandler)
 	http.HandleFunc("/hrsadmin-addrooms", AddroomHandler)
 	http.HandleFunc("/hrsadmin-allot-room", AllroomHandler)
 	http.HandleFunc("/hrsadmin-delete", DeletroomHandler)
 	http.HandleFunc("/hrsadmin-delete-alloted-room", DeletallotedroomHandler)
+	http.HandleFunc("/payment_validate", paymentvalid)
 	http.HandleFunc("/logout-admin", Logoutadminhandeler)
 	http.HandleFunc("/delete-user", Userdeletehandler)
 	http.HandleFunc("/logout", Logouthandeler)
